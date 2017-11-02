@@ -10,7 +10,7 @@ Vote up :+1: existing issues to show your interest in support.
 
 ### What this tracker is *not* for
 
-* General SketchUp or LayOut issues. Only API issues are accepted.
+* General SketchUp or LayOut issues should be directed to the [Help Center](https://help.sketchup.com/). Only API issues are accepted in this tracker.
 * "How to" questions should be posted in the [forums](https://forums.sketchup.com/c/developers).
 
 ## For SketchUp Team
