@@ -1,6 +1,8 @@
 # API Issues Only
 
-Please note that this is a tracker for the SketchUp and LayOut APIs only. Bugs or feature requests that do not relate to the APIs will be removed.
+*Please note that this is a tracker for the SketchUp and LayOut APIs only.*
+
+Bugs or feature requests that do not relate to the APIs will be removed. Fill in as much details as possible.
 
 # Bug Reports
 
