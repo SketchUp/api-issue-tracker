@@ -24,3 +24,8 @@ Vote up :+1: existing issues to show your interest in support.
 * When we release a new version of SketchUp we close the reported issues addressed by that release.
 
 See internal document titled "GitHub Issue Tracker Workflow" for more details.
+
+## Filters
+
+* [Issues Logged Internally](https://github.com/SketchUp/api-issue-tracker/issues?q=is%3Aissue+is%3Aopen+label%3Alogged)
+* [Unlogged issues](https://github.com/SketchUp/api-issue-tracker/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+-label%3Alogged+)
