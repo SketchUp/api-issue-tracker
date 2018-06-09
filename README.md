@@ -18,7 +18,7 @@ Vote up :+1: existing issues to show your interest in support.
 * Weekly we scrub this list.
 * We close off-topic issues.
 * Each issue is assigned appropriate label to indicate product, API, type of issue (bug, enhancement)
-* Bug reports without complete reprodusible example will need more information before we log internally.
+* Bug reports without complete reproducible example will need more information before we log internally.
 * Feature requests needs to have context and use-cases before we log internally.
 * When we have all information needed we add the label "logged" and comment back with the internal tracker ID.
 * When we release a new version of SketchUp we close the reported issues addressed by that release.
