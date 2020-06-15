@@ -1,7 +1,5 @@
 # SketchUp and LayOut API public issue tracker
 
-*(Experimental)*
-
 ## For API Users
 
 This repository is a place where you can use it's issue tracker to file bug reports and feature requests for the SketchUp and LayOut APIs.
