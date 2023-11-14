@@ -26,6 +26,7 @@ See internal document titled "GitHub Issue Tracker Workflow" for more details.
 ## Filters
 
 * [Open Issues Logged Internally](https://github.com/SketchUp/api-issue-tracker/issues?q=is%3Aissue+is%3Aopen+label%3Alogged)
+* [Open Issues Needing Parity](https://github.com/SketchUp/api-issue-tracker/issues?q=is%3Aissue+is%3Aopen+label%3A"need+more+info")
 * [Open Unlogged issues](https://github.com/SketchUp/api-issue-tracker/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+-label%3Alogged+)
 * [Open Ruby API issues](https://github.com/SketchUp/api-issue-tracker/issues?q=is%3Aissue+is%3Aopen+label%3A%22Ruby+API%22)
 * [Open C API issues](https://github.com/SketchUp/api-issue-tracker/issues?q=is%3Aissue+is%3Aopen+label%3A%22C+API%22)
