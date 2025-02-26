@@ -1,5 +1,7 @@
 name: Close Project Issues
 
+# https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions
+
 on:
   workflow_dispatch:
     inputs:
@@ -14,23 +16,27 @@ on:
         description: 'The name of the fix label to apply (fixed-SU2025.0)'
         required: true
       dry_run:
-        description: 'Set to true to perform a dry run without making any changes'
+        description: 'Dry Run. Set to true to perform a dry run without making any changes'
         required: false
         default: true
         type: boolean
 
 jobs:
-  manage_issues:
+  close_issues:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+    - name: Generate token
+      id: generate-token
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ vars.APP_ID }}
+        private-key: ${{ secrets.APP_PEM }}
+
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Set up GitHub CLI
-      uses: actions/setup-gh@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Get organization name
       id: get_org_name
@@ -40,6 +46,8 @@ jobs:
 
     - name: Get project node ID and title
       id: get_project_info
+      env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         org_name=${{ env.org_name }}
         project_number=${{ github.event.inputs.project_number }}
@@ -61,25 +69,25 @@ jobs:
 
     - name: Get issues in the specified column
       id: get_issues
+      env:
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
-        project_id=${{ env.project_id }}
+        org_name=${{ env.org_name }}
+        project_number=${{ github.event.inputs.project_number }}
         column_name=${{ github.event.inputs.column_name }}
         issues=$(gh api graphql -f query='
-          query($project_id: ID!, $column_name: String!) {
-            node(id: $project_id) {
-              ... on ProjectV2 {
-                items(first: 100) {
-                  nodes {
-                    id
-                    content {
-                      ... on Issue {
-                        number
+          query ($org: String!, $number: Int!) {
+              organization(login: $org) {
+                projectV2(number: $number) {
+                  items(first: 100) {
+                    nodes {
+                      content {
+                        ... on Issue {
+                          number
+                        }
                       }
-                    }
-                    fieldValues(first: 100) {
-                      nodes {
-                        value
-                        projectField {
+                      fieldValueByName(name: "Status") {
+                        ... on ProjectV2ItemFieldSingleSelectValue {
                           name
                         }
                       }
@@ -88,15 +96,23 @@ jobs:
                 }
               }
             }
-          }' -f project_id=$project_id -f column_name=$column_name --jq '.data.node.items.nodes[] | select(.fieldValues.nodes[] | select(.projectField.name == "Status" and .value == $column_name)) | .content.number')
-
+          }' -f org=$org_name -F number=$project_number --jq '
+            [
+              .data.organization.projectV2.items.nodes[]
+              | select(.fieldValueByName.name == "'"$column_name"'")
+              | .content.number
+            ] | join(" ")
+          ')
+        
         echo "issues=$issues" >> $GITHUB_ENV
         echo "Issues: $issues"
 
     - name: Create label if it does not exist
+      env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         project_title=${{ env.project_title }}
-        label=${{ env.fix_label }}
+        label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
         echo "Label to create: $label"
         if [ "$dry_run" = "false" ]; then
@@ -106,9 +122,11 @@ jobs:
         fi
 
     - name: Add label to issues
+      env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         project_title=${{ env.project_title }}
-        label=${{ env.fix_label }}
+        label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
         for issue in ${{ env.issues }}; do
           echo "Would add label $label to issue $issue"
