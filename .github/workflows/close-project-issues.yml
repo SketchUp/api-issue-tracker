@@ -1,0 +1,128 @@
+name: Close Project Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_number:
+        description: 'The number of the project'
+        required: true
+      column_name:
+        description: 'The name of the column'
+        required: false
+        default: 'Closed'
+      fix_label:
+        description: 'The name of the fix label to apply (fixed-SU2025.0)'
+        required: true
+      dry_run:
+        description: 'Set to true to perform a dry run without making any changes'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  manage_issues:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up GitHub CLI
+      uses: actions/setup-gh@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Get organization name
+      id: get_org_name
+      run: |
+        org_name=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
+        echo "org_name=$org_name" >> $GITHUB_ENV
+
+    - name: Get project node ID and title
+      id: get_project_info
+      run: |
+        org_name=${{ env.org_name }}
+        project_number=${{ github.event.inputs.project_number }}
+        project_info=$(gh api graphql -f query='
+          query($org_name: String!, $project_number: Int!) {
+            organization(login: $org_name) {
+              projectV2(number: $project_number) {
+                id
+                title
+              }
+            }
+          }' -f org_name=$org_name -F project_number=$project_number --jq '.data.organization.projectV2')
+        project_id=$(echo $project_info | jq -r '.id')
+        project_title=$(echo $project_info | jq -r '.title')
+        echo "project_id=$project_id" >> $GITHUB_ENV
+        echo "project_title=$project_title" >> $GITHUB_ENV
+        echo "Project ID: $project_id"
+        echo "Project Title: $project_title"
+
+    - name: Get issues in the specified column
+      id: get_issues
+      run: |
+        project_id=${{ env.project_id }}
+        column_name=${{ github.event.inputs.column_name }}
+        issues=$(gh api graphql -f query='
+          query($project_id: ID!, $column_name: String!) {
+            node(id: $project_id) {
+              ... on ProjectV2 {
+                items(first: 100) {
+                  nodes {
+                    id
+                    content {
+                      ... on Issue {
+                        number
+                      }
+                    }
+                    fieldValues(first: 100) {
+                      nodes {
+                        value
+                        projectField {
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }' -f project_id=$project_id -f column_name=$column_name --jq '.data.node.items.nodes[] | select(.fieldValues.nodes[] | select(.projectField.name == "Status" and .value == $column_name)) | .content.number')
+
+        echo "issues=$issues" >> $GITHUB_ENV
+        echo "Issues: $issues"
+
+    - name: Create label if it does not exist
+      run: |
+        project_title=${{ env.project_title }}
+        label=${{ env.fix_label }}
+        dry_run=${{ github.event.inputs.dry_run }}
+        echo "Label to create: $label"
+        if [ "$dry_run" = "false" ]; then
+          if ! gh label list | grep -q "^$label$"; then
+            gh label create "$label" --color FFFFFF
+          fi
+        fi
+
+    - name: Add label to issues
+      run: |
+        project_title=${{ env.project_title }}
+        label=${{ env.fix_label }}
+        dry_run=${{ github.event.inputs.dry_run }}
+        for issue in ${{ env.issues }}; do
+          echo "Would add label $label to issue $issue"
+          if [ "$dry_run" = "false" ]; then
+            gh issue edit $issue --add-label "$label"
+          fi
+        done
+
+    - name: Close issues
+      run: |
+        dry_run=${{ github.event.inputs.dry_run }}
+        for issue in ${{ env.issues }}; do
+          echo "Would close issue $issue"
+          if [ "$dry_run" = "false" ]; then
+            gh issue edit $issue --state closed
+          fi
+        done
