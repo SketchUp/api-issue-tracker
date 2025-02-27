@@ -129,18 +129,20 @@ jobs:
         label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
         for issue in ${{ env.issues }}; do
-          echo "Would add label $label to issue $issue"
+          echo "Add label $label to issue $issue"
           if [ "$dry_run" = "false" ]; then
             gh issue edit $issue --add-label "$label"
           fi
         done
 
     - name: Close issues
+      env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         dry_run=${{ github.event.inputs.dry_run }}
         for issue in ${{ env.issues }}; do
-          echo "Would close issue $issue"
+          echo "Close issue $issue"
           if [ "$dry_run" = "false" ]; then
-            gh issue edit $issue --state closed
+            gh issue close $issue
           fi
         done
