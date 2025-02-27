@@ -111,7 +111,6 @@ jobs:
       env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
-        project_title=${{ env.project_title }}
         label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
         echo "Label to create: $label"
@@ -126,7 +125,6 @@ jobs:
       env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
-        project_title=${{ env.project_title }}
         label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
         for issue in ${{ env.issues }}; do
