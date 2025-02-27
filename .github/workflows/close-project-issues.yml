@@ -116,7 +116,8 @@ jobs:
         dry_run=${{ github.event.inputs.dry_run }}
         echo "Label to create: $label"
         if [ "$dry_run" = "false" ]; then
-          if ! gh label list | grep -q "^$label$"; then
+          if ! gh label list --limit 100 | grep -q -w "$label"; then
+            echo "Creating label..."
             gh label create "$label" --color FFFFFF
           fi
         fi
