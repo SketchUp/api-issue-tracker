@@ -8,6 +8,7 @@ on:
       project_number:
         description: 'The number of the project'
         required: true
+        type: number # Important: Specify the type as number
       column_name:
         description: 'The name of the column'
         required: false
@@ -47,21 +48,27 @@ jobs:
     - name: Get project node ID and title
       id: get_project_info
       env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         org_name=${{ env.org_name }}
         project_number=${{ github.event.inputs.project_number }}
-        project_info=$(gh api graphql -f query='
-          query($org_name: String!, $project_number: Int!) {
-            organization(login: $org_name) {
-              projectV2(number: $project_number) {
-                id
-                title
+        project_info=$(gh api graphql \
+          -f query='
+            query($org_name: String!, $project_number: Int!) {
+              organization(login: $org_name) {
+                projectV2(number: $project_number) {
+                  id
+                  title
+                }
               }
             }
-          }' -f org_name=$org_name -F project_number=$project_number --jq '.data.organization.projectV2')
-        project_id=$(echo $project_info | jq -r '.id')
-        project_title=$(echo $project_info | jq -r '.title')
+          ' \
+          -F org_name=$org_name \
+          -F number=$project_number \
+          --jq '.data.organization.projectV2'
+        )
+        project_id=$(echo "$project_info" | jq -r '.id')
+        project_title=$(echo "$project_info" | jq -r '.title')
         echo "project_id=$project_id" >> $GITHUB_ENV
         echo "project_title=$project_title" >> $GITHUB_ENV
         echo "Project ID: $project_id"
@@ -75,40 +82,46 @@ jobs:
         org_name=${{ env.org_name }}
         project_number=${{ github.event.inputs.project_number }}
         column_name=${{ github.event.inputs.column_name }}
-        issues=$(gh api graphql -f query='
-          query ($org: String!, $number: Int!) {
-            organization(login: $org) {
-              projectV2(number: $number) {
-                items(first: 100) {
-                  nodes {
-                    content {
-                      ... on Issue {
-                        number
+        issues=$(gh api graphql \
+          -f query='
+            query ($org: String!, $number: Int!, $columnName: String!) {
+              organization(login: $org) {
+                projectV2(number: $number) {
+                  items(first: 100) {
+                    nodes {
+                      content {
+                        ... on Issue {
+                          number
+                        }
                       }
-                    }
-                    fieldValueByName(name: "Status") {
-                      ... on ProjectV2ItemFieldSingleSelectValue {
-                        name
+                      fieldValueByName(name: "Status") {
+                        ... on ProjectV2ItemFieldSingleSelectValue {
+                          name
+                        }
                       }
                     }
                   }
                 }
               }
             }
-          }' -f org=$org_name -F number=$project_number --jq '
+          ' \
+          -F org=$org_name \
+          -F number=$project_number \
+          -F columnName=$column_name \
+          --jq '
             [
               .data.organization.projectV2.items.nodes[]
-              | select(.fieldValueByName.name == "'"$column_name"'")
+              | select(.fieldValueByName.name == $columnName)
               | .content.number
             ] | join(" ")
-        ')
-        
+          '
+        )
         echo "issues=$issues" >> $GITHUB_ENV
         echo "Issues: $issues"
 
     - name: Create label if it does not exist
       env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
@@ -122,25 +135,35 @@ jobs:
 
     - name: Add label to issues
       env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         label=${{ github.event.inputs.fix_label }}
         dry_run=${{ github.event.inputs.dry_run }}
-        for issue in ${{ env.issues }}; do
-          echo "Add label $label to issue $issue"
-          if [ "$dry_run" = "false" ]; then
-            gh issue edit $issue --add-label "$label"
-          fi
-        done
+        issues="${{ env.issues }}" # Correct way to use env variable in bash
+        if [ -n "$issues" ]; then # Check if issues is not empty
+          for issue in $issues; do
+            echo "Add label $label to issue $issue"
+            if [ "$dry_run" = "false" ]; then
+              gh issue edit "$issue" --add-label "$label"
+            fi
+          done
+        else
+          echo "No issues found to label."
+        fi
 
     - name: Close issues
       env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
       run: |
         dry_run=${{ github.event.inputs.dry_run }}
-        for issue in ${{ env.issues }}; do
-          echo "Close issue $issue"
-          if [ "$dry_run" = "false" ]; then
-            gh issue close $issue
-          fi
-        done
+        issues="${{ env.issues }}" # Correct way to use env variable
+        if [ -n "$issues" ]; then # Check if issues is not empty
+          for issue in $issues; do
+            echo "Close issue $issue"
+            if [ "$dry_run" = "false" ]; then
+              gh issue close "$issue"
+            fi
+          done
+         else
+           echo "No issues found to close."
+        fi
