@@ -95,8 +95,7 @@ jobs:
                 }
               }
             }
-          }'
-          -f org=$org_name -F number=$project_number --jq '
+          }' -f org=$org_name -F number=$project_number --jq '
             [
               .data.organization.projectV2.items.nodes[]
               | select(.fieldValueByName.name == "'"$column_name"'")
