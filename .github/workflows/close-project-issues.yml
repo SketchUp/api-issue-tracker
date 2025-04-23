@@ -77,19 +77,18 @@ jobs:
         column_name=${{ github.event.inputs.column_name }}
         issues=$(gh api graphql -f query='
           query ($org: String!, $number: Int!) {
-              organization(login: $org) {
-                projectV2(number: $number) {
-                  items(first: 100) {
-                    nodes {
-                      content {
-                        ... on Issue {
-                          number
-                        }
+            organization(login: $org) {
+              projectV2(number: $number) {
+                items(first: 100) {
+                  nodes {
+                    content {
+                      ... on Issue {
+                        number
                       }
-                      fieldValueByName(name: "Status") {
-                        ... on ProjectV2ItemFieldSingleSelectValue {
-                          name
-                        }
+                    }
+                    fieldValueByName(name: "Status") {
+                      ... on ProjectV2ItemFieldSingleSelectValue {
+                        name
                       }
                     }
                   }
@@ -102,7 +101,7 @@ jobs:
               | select(.fieldValueByName.name == "'"$column_name"'")
               | .content.number
             ] | join(" ")
-          ')
+        ')
         
         echo "issues=$issues" >> $GITHUB_ENV
         echo "Issues: $issues"
