@@ -74,7 +74,7 @@ jobs:
       run: |
         org_name=${{ env.org_name }}
         project_number=${{ github.event.inputs.project_number }}
-        column_name=${{ github.event.inputs.column_name }}
+        column_name="${{ github.event.inputs.column_name }}"
         issues=$(gh api graphql -f query='
           query ($org: String!, $number: Int!) {
             organization(login: $org) {
