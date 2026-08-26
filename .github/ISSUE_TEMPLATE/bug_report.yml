@@ -74,20 +74,11 @@ body:
       required: true
 
   - type: textarea
-    id: repro-ruby
+    id: repro
     attributes:
-      label: Reproducible Ruby Code Snippet
-      description: Complete reproducible code snippet. (Important!) Leave empty if this is not a Ruby API issue.
+      label: Reproducible Code Snippet
+      description: Complete reproducible code snippet. (Important!)
       render: ruby
-    validations:
-      required: false
-
-  - type: textarea
-    id: repro-c
-    attributes:
-      label: Reproducible C Code Snippet
-      description: Complete reproducible code snippet. (Important!) Leave empty if this is not a C API issue.
-      render: c
     validations:
       required: false
 
