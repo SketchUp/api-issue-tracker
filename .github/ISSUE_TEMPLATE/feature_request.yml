@@ -1,0 +1,64 @@
+name: Feature Request
+description: Suggest a new feature or improvement for the SketchUp or LayOut API
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## API Issues Only
+
+        *Please note that this is a tracker for the SketchUp and LayOut APIs only.*
+
+        Feature requests that do not relate to the APIs will be removed. Fill in as much detail as possible.
+
+        * General SketchUp or LayOut requests should be directed to the [Help Center](https://help.sketchup.com/).
+        * "How to" questions should be posted in the [forums](https://forums.sketchup.com/c/developers).
+
+  - type: dropdown
+    id: product
+    attributes:
+      label: Product
+      description: Which product does this relate to? Select all that apply.
+      multiple: true
+      options:
+        - SketchUp
+        - LayOut
+    validations:
+      required: true
+
+  - type: dropdown
+    id: api
+    attributes:
+      label: API
+      description: Which API does this relate to? Select all that apply.
+      multiple: true
+      options:
+        - Ruby API
+        - C API
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe what you are trying to do on a high-level overview. What is your use-case?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Implementation
+      description: If you have a specific implementation in mind, please explain your reasoning to why it should be like that.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Anything else that helps explain the request. Attach any relevant files by dragging them into this field.
+    validations:
+      required: false

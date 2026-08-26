@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: SketchUp / LayOut Help Center
+    url: https://help.sketchup.com/
+    about: General SketchUp or LayOut issues that are not API related.
+  - name: Developer Forums
+    url: https://forums.sketchup.com/c/developers
+    about: '"How to" questions about using the SketchUp and LayOut APIs.'

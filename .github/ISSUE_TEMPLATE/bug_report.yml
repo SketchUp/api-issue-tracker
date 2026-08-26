@@ -1,0 +1,100 @@
+name: Bug Report
+description: Report a bug in the SketchUp or LayOut API
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## API Issues Only
+
+        *Please note that this is a tracker for the SketchUp and LayOut APIs only.*
+
+        Bugs that do not relate to the APIs will be removed. Fill in as much detail as possible.
+
+        * General SketchUp or LayOut issues should be directed to the [Help Center](https://help.sketchup.com/).
+        * "How to" questions should be posted in the [forums](https://forums.sketchup.com/c/developers).
+
+  - type: dropdown
+    id: product
+    attributes:
+      label: Product
+      description: Which product does this affect? Select all that apply.
+      multiple: true
+      options:
+        - SketchUp
+        - LayOut
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: SketchUp/LayOut Version
+      description: Which version are you seeing this in?
+      placeholder: e.g. SketchUp Pro 2025.0.xxx
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: OS Platform
+      description: Which operating system and version?
+      placeholder: e.g. Windows 11 24H2, macOS 15.3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: api
+    attributes:
+      label: API
+      description: Which API does this affect? Select all that apply.
+      multiple: true
+      options:
+        - Ruby API
+        - C API
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe briefly what you are doing and what is happening.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+      description: Describe what the expected result is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro-ruby
+    attributes:
+      label: Reproducible Ruby Code Snippet
+      description: Complete reproducible code snippet. (Important!) Leave empty if this is not a Ruby API issue.
+      render: ruby
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro-c
+    attributes:
+      label: Reproducible C Code Snippet
+      description: Complete reproducible code snippet. (Important!) Leave empty if this is not a C API issue.
+      render: c
+    validations:
+      required: false
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Additional Context
+      description: Attach any relevant files (models, extensions, screenshots) by dragging them into this field.
+    validations:
+      required: false
