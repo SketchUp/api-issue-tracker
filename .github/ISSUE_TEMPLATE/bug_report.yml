@@ -53,6 +53,7 @@ body:
       options:
         - Ruby API
         - C API
+        - JS API (Labs)
         - Other / not sure
     validations:
       required: true
