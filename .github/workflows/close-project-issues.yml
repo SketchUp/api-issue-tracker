@@ -30,13 +30,13 @@ jobs:
     steps:
     - name: Generate token
       id: generate-token
-      uses: actions/create-github-app-token@v1
+      uses: actions/create-github-app-token@v2
       with:
         app-id: ${{ vars.APP_ID }}
         private-key: ${{ secrets.APP_PEM }}
 
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
 
     - name: Get organization name
       id: get_org_name
